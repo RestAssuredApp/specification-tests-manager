@@ -1,0 +1,28 @@
+{
+  "name": "specification-tests-manager",
+  "version": "1.0.0",
+  "description": "",
+  "engines": {
+    "node": "12.18.3",
+    "npm": "6.14.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marchuanv/specification-tests-manager.git"
+  },
+  "author": "marchuan van der merwe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marchuanv/specification-tests-manager/issues"
+  },
+  "homepage": "https://github.com/marchuanv/specification-tests-manager#readme",
+  "dependencies": {
+    "@octokit/app": "^4.2.1",
+    "@octokit/rest": "^18.0.4",
+    "js-beautify": "^1.10.2",
+    "utils": "git+https://github.com/marchuanv/utils.git"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
