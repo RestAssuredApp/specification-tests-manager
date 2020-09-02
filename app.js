@@ -2,6 +2,10 @@ const FileTree = require("./filetree.js");
 const Git = require("./git.js");
 const Trello = require("trello");
 const fs = require("fs");
+const logging = require("logging");
+
+logging.config.add("Specification Tests Manager");
+
 const componentRequestHandler = require("component.request.handler");
 const componentDelegate = require("component.delegate");
 const privatePort = process.env.PORT || 3000;
@@ -13,6 +17,7 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
 
         if (request.path === "/"){
+            logging.write("Specification Tests Manager",`Serving Root HTML`);
             const html = fs.readFileSync("./index.html","utf8")
             return {
                 statusMessage: "Success",
@@ -24,7 +29,7 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
 
         if (request.path === "/sync"){
             if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
-
+                logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 //const trello = new Trello(trelloApplicationId, trelloToken);
 
                 return {
@@ -48,15 +53,16 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
                 //     }
                 // });
             } else {
+                logging.write("Specification Tests Manager",`hosted environment is not setup correctly`);
                 return {
                     statusMessage: "Internal Server Error",
                     statusCode: 500,
                     headers: {"Content-Type": "text/plain"},
-                    data: "Hosted Environment is not setup correctly"
+                    data: "hosted environment is not setup correctly"
                 };
             }
         }
-
+        logging.write("Specification Tests Manager",`no matching request paths`);
         return {
             statusMessage: "Not Found",
             statusCode: 404,

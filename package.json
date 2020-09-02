@@ -24,7 +24,8 @@
     "component.request.handler": "git+https://github.com/marchuanv/component.request.handler.git",
     "js-beautify": "^1.10.2",
     "trello": "^0.10.0",
-    "utils": "git+https://github.com/marchuanv/utils.git"
+    "utils": "git+https://github.com/marchuanv/utils.git",
+    "logging": "git+https://github.com/marchuanv/logging.git"
   },
   "scripts": {
     "start": "node app.js"
