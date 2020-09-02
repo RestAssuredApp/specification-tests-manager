@@ -4,9 +4,10 @@ const Trello = require("trello");
 const fs = require("fs");
 const componentRequestHandler = require("component.request.handler");
 const componentDelegate = require("component.delegate");
+const privatePort = process.env.PORT;
 
 (async () => {
-    await componentDelegate.register(`component.request.handler.route`, 3000, async (request) => {
+    await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
         if (request.path === "/"){
             const html = fs.readFileSync("./index.html","utf8")
             return {
@@ -16,30 +17,31 @@ const componentDelegate = require("component.delegate");
                 data: html
             };
         } else {
-            const data = JSON.stringify(request.data);
-            if (data && data.owner && data.gitPrivateKey && data.trelloApplicationId && data.trelloToken){
-                const trello = new Trello(data.trelloApplicationId, data.trelloToken);
+            const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
+            if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
 
-                const boardId = 
+                const trello = new Trello(trelloApplicationId, trelloToken);
 
-                trello.getListsOnBoard();
+                // const boardId = 
 
-                const myListId = "5f4cece36fedde06444688a4";
-                trello.addCard('Clean car', 'Wax on, wax off', myListId, (error, trelloCard) => {
-                    if (error) {
-                        console.log('Could not add card:', error);
-                    }
-                    else {
-                        console.log('Added card:', trelloCard);
-                    }
-                });
+                // trello.getListsOnBoard();
+
+                // const myListId = "5f4cece36fedde06444688a4";
+                // trello.addCard('Clean car', 'Wax on, wax off', myListId, (error, trelloCard) => {
+                //     if (error) {
+                //         console.log('Could not add card:', error);
+                //     }
+                //     else {
+                //         console.log('Added card:', trelloCard);
+                //     }
+                // });
             }
         }
     });
     await componentRequestHandler.handle({
-        publicHost: "localhost",
-        publicPort: 3000,
-        privatePort: 3000
+        publicHost: process.env.publicHost,
+        publicPort: process.env.publicPort,
+        privatePort
     });
     
     // const fileTree = new FileTree({ dirPath: __dirname, pathName: "stage" });
