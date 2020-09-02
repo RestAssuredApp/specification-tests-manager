@@ -15,6 +15,8 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
 
 (async () => {
 
+    logging.write("Specification Tests Manager",`starting specification test manager`);
+
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
 
         logging.write("Specification Tests Manager",`handling request for /${request.path}`);
