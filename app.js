@@ -42,6 +42,13 @@ const privatePort = process.env.PORT;
                 //         console.log('Added card:', trelloCard);
                 //     }
                 // });
+            } else {
+                return {
+                    statusMessage: "Internal Server Error",
+                    statusCode: 500,
+                    headers: {"Content-Type": "text/plain"},
+                    data: "Hosted Environment is not setup correctly"
+                };
             }
         }
     });
