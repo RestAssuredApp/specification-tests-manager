@@ -25,7 +25,7 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
         if (request.path === "/sync"){
             if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
 
-                const trello = new Trello(trelloApplicationId, trelloToken);
+                //const trello = new Trello(trelloApplicationId, trelloToken);
 
                 return {
                     statusMessage: "Success",
