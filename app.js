@@ -19,6 +19,11 @@ const componentDelegate = require("component.delegate");
             const data = JSON.stringify(request.data);
             if (data && data.owner && data.gitPrivateKey && data.trelloApplicationId && data.trelloToken){
                 const trello = new Trello(data.trelloApplicationId, data.trelloToken);
+
+                const boardId = 
+
+                trello.getListsOnBoard();
+
                 const myListId = "5f4cece36fedde06444688a4";
                 trello.addCard('Clean car', 'Wax on, wax off', myListId, (error, trelloCard) => {
                     if (error) {
