@@ -22,6 +22,13 @@ const privatePort = process.env.PORT;
 
                 const trello = new Trello(trelloApplicationId, trelloToken);
 
+                return {
+                    statusMessage: "Success",
+                    statusCode: 200,
+                    headers: {"Content-Type": "text/plain"},
+                    data: "Trello Connected"
+                };
+
                 // const boardId = 
 
                 // trello.getListsOnBoard();
