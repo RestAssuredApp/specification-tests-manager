@@ -1,17 +1,19 @@
 const FileTree = require("./filetree.js");
 const Git = require("./git.js");
 const Trello = require("trello");
+const fs = require("fs");
 const componentRequestHandler = require("component.request.handler");
 const componentDelegate = require("component.delegate");
 
 (async () => {
     await componentDelegate.register(`component.request.handler.route`, 3000, async (request) => {
         if (request.path === "/"){
+            const html = fs.readFileSync("./index.html","utf8")
             return {
                 statusMessage: "Success",
                 statusCode: 200,
                 headers: {"Content-Type": "text/html"},
-                data: "<html><head></head><body><script>fetch('/').then((response) => response.text()).catch(() => { throw err; });</script></body></html>"
+                data: html
             };
         } else {
             const data = JSON.stringify(request.data);
