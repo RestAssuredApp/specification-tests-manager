@@ -4,11 +4,14 @@ const Trello = require("trello");
 const fs = require("fs");
 const componentRequestHandler = require("component.request.handler");
 const componentDelegate = require("component.delegate");
-const privatePort = process.env.PORT;
+const privatePort = process.env.PORT || 3000;
+const publicHost = process.env.publicHost || "localhost";
+const publicPort = process.env.publicPort || 3000;
+const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
 
 (async () => {
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
-        
+
         if (request.path === "/"){
             const html = fs.readFileSync("./index.html","utf8")
             return {
@@ -20,7 +23,6 @@ const privatePort = process.env.PORT;
         }
 
         if (request.path === "/sync"){
-            const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
             if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
 
                 const trello = new Trello(trelloApplicationId, trelloToken);
@@ -62,11 +64,7 @@ const privatePort = process.env.PORT;
             data: "path does not exist"
         };
     });
-    await componentRequestHandler.handle({
-        publicHost: process.env.publicHost,
-        publicPort: process.env.publicPort,
-        privatePort
-    });
+    await componentRequestHandler.handle({ publicHost, publicPort, privatePort });
     
     // const fileTree = new FileTree({ dirPath: __dirname, pathName: "stage" });
     //const git = new Git({ fileTree, privateKey, owner });
