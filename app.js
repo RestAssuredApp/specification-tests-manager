@@ -14,7 +14,10 @@ const publicPort = process.env.publicPort || 3000;
 const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
 
 (async () => {
+
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
+
+        logging.write("Specification Tests Manager",`handling request for /${request.path}`);
 
         if (request.path === "/"){
             logging.write("Specification Tests Manager",`Serving Root HTML`);
