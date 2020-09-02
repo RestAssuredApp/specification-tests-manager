@@ -7,103 +7,8 @@ const { App } = require("@octokit/app");
 const OctokitApp = App;
 const OctokitRest = Octokit;
 
-module.exports = function Git({ fileTree, privateKey, owner }) {
-
-    const app = new OctokitApp({ id: 29633, privateKey });
-    const octokit = new OctokitRest({
-        auth: () => app.getInstallationAccessToken({ installationId: 869338 })
-    });
-    const branch = fileTree.name;
-    const repo = fileTree.name;
-  
-    let gitRequestsLock = false;
-  
-    this.load=async(callback)=>{
-  
-      await getGitRequestsLock();
-  
-      console.log("");
-      console.log("-------------------------------------------------------------------------------------------");
-      console.log(`LOADING THE ${fileTree.name} REPOSITORY.`);
-      console.log("-------------------------------------------------------------------------------------------");
-     
-      await ensureBranch(branch);
-  
-      const mergeBranchName = `${branch}_merge`;
-      await ensureBranch(mergeBranchName);
-  
-      for(const pull of (await getPullRequests(mergeBranchName, branch))){
-        await octokit.pulls.merge({ owner, repo, pull_number: pull.number });
-      };
-      
-      let remoteMergeBranchChanges = false;
-      for(const fileMetadata of (await getFilesMetadata(branch)) ) {
-  
-        const gitPath = fileMetadata.path.replace(fileTree.path,"").replace(/\\/g,"/").replace("/","");
-  
-        if (fileMetadata.isOnDisk===false){
-  
-          if (fileMetadata.isFile === true){
-            if (fileMetadata.isInRepo === true){
-              if (fileMetadata.deletedFromDisk === true){
-                  console.log(`deleting ${gitPath} in the ${mergeBranchName} branch.`);
-                  await octokit.repos.deleteFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
-                      message: `deleted ${gitPath} in the ${mergeBranchName} branch.`, 
-                      sha: fileMetadata.sha
-                  });
-                  remoteMergeBranchChanges = true;
-              } else {
-                const response =  await octokit.gitdata.getBlob({ owner, repo: fileTree.name, file_sha: fileMetadata.sha, ref: mergeBranchName });
-                if(response.status===200){
-                  const buff = new Buffer(response.data.content, 'base64');
-                  fs.writeFileSync(fileMetadata.path, buff.toString('ascii'));
-                  console.log(`created ${fileMetadata.path}.`);
-                }
-              }
-            } else {
-              throw new Error("metadata indicated that there is file that is not on disk therefor it needs to download it from git, but the file is not in git.");
-            }
-          } else {
-            fs.mkdirSync(fileMetadata.path);
-          }
-  
-        } else if (fileMetadata.isFile === true) {
-          if (fileMetadata.isInRepo === true){
-            if (fileMetadata.sizeDiff !== 0) {
-              console.log(`updating ${gitPath} in the ${mergeBranchName} branch.`);
-              await octokit.repos.updateFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
-                message: `updated ${gitPath} in the ${mergeBranchName} branch.`, 
-                content: fs.readFileSync(fileMetadata.path,"base64"),
-                sha: fileMetadata.sha
-              });
-              remoteMergeBranchChanges = true;
-            }
-          } else {
-            console.log(`creating ${gitPath} in the ${mergeBranchName} branch.`);
-            await octokit.repos.createFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
-              message: `created ${gitPath} in the ${mergeBranchName} branch.`, 
-              content: fs.readFileSync(fileMetadata.path,"base64")
-            });
-            remoteMergeBranchChanges = true;
-          }
-        }
-      };
-  
-      if (remoteMergeBranchChanges === true){
-        console.log(`merging ${mergeBranchName} into ${branch}`);
-        await octokit.pulls.create({owner, repo, title:"auto pull request created by container", head: mergeBranchName, base: branch, maintainer_can_modify: true});
-        console.log(`${mergeBranchName} merged into ${branch}`);
-        for(const pull of (await getPullRequests(mergeBranchName, branch))){
-          await octokit.pulls.merge({ owner, repo, pull_number: pull.number });
-        };
-        remoteMergeBranchChanges = false;
-      } else {
-        console.log(`no changes were found in the ${mergeBranchName} branch.`);
-      }
-  
-      gitRequestsLock = false;
-    };
-  
+module.exports = function ({ fileTree, privateKey, owner }) {
+    
     const wrapOctokitResponse=async(octokitCommandQuery)=>{
       let items = [];
       const response = await octokitCommandQuery;
@@ -189,7 +94,7 @@ module.exports = function Git({ fileTree, privateKey, owner }) {
     }
   
     const getBranches = async()=> {
-      return await Promise.all((await wrapOctokitResponse(octokit.git.listRefs({ owner, repo }))).filter(x=>x.object.type === "commit").map(async(x)=>{
+      return await Promise.all((await wrapOctokitResponse(octokit.git.listMatchingRefs({ owner, repo }))).filter(x=>x.object.type === "commit").map(async(x)=>{
         return (await wrapOctokitResponse(octokit.git.getCommit({ owner, repo, commit_sha: x.object.sha }))).reduce((obj, commit)=>{
           obj.name = x.ref.replace("refs/heads/","");
           obj.sha = commit.sha;
@@ -212,6 +117,7 @@ module.exports = function Git({ fileTree, privateKey, owner }) {
       }
     }
   
+    let gitRequestsLock = false;
     const getGitRequestsLock = async () => {
       if (gitRequestsLock===true){
         await setTimeout(getGitRequestsLock, 1000);
@@ -220,4 +126,100 @@ module.exports = function Git({ fileTree, privateKey, owner }) {
         gitRequestsLock = true;
       }
     }
+
+    let octokit;
+    let repo;
+    
+    this.load = async () => {
+
+      const app = new OctokitApp({ id: 29633, privateKey });
+      const token = await app.getInstallationAccessToken({ installationId: 869338 });
+      octokit = new OctokitRest({ auth: token });
+      
+      const branch = fileTree.name;
+      repo = fileTree.name;
+  
+      await getGitRequestsLock();
+  
+      console.log("");
+      console.log("-------------------------------------------------------------------------------------------");
+      console.log(`LOADING THE ${fileTree.name} REPOSITORY.`);
+      console.log("-------------------------------------------------------------------------------------------");
+     
+      await ensureBranch(branch);
+  
+      const mergeBranchName = `${branch}_merge`;
+      await ensureBranch(mergeBranchName);
+  
+      for(const pull of (await getPullRequests(mergeBranchName, branch))){
+        await octokit.pulls.merge({ owner, repo, pull_number: pull.number });
+      };
+      
+      let remoteMergeBranchChanges = false;
+      for(const fileMetadata of (await getFilesMetadata(branch)) ) {
+  
+        const gitPath = fileMetadata.path.replace(fileTree.path,"").replace(/\\/g,"/").replace("/","");
+  
+        if (fileMetadata.isOnDisk===false){
+  
+          if (fileMetadata.isFile === true){
+            if (fileMetadata.isInRepo === true){
+              if (fileMetadata.deletedFromDisk === true){
+                  console.log(`deleting ${gitPath} in the ${mergeBranchName} branch.`);
+                  await octokit.repos.deleteFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
+                      message: `deleted ${gitPath} in the ${mergeBranchName} branch.`, 
+                      sha: fileMetadata.sha
+                  });
+                  remoteMergeBranchChanges = true;
+              } else {
+                const response =  await octokit.gitdata.getBlob({ owner, repo: fileTree.name, file_sha: fileMetadata.sha, ref: mergeBranchName });
+                if(response.status===200){
+                  const buff = new Buffer(response.data.content, 'base64');
+                  fs.writeFileSync(fileMetadata.path, buff.toString('ascii'));
+                  console.log(`created ${fileMetadata.path}.`);
+                }
+              }
+            } else {
+              throw new Error("metadata indicated that there is file that is not on disk therefor it needs to download it from git, but the file is not in git.");
+            }
+          } else {
+            fs.mkdirSync(fileMetadata.path);
+          }
+  
+        } else if (fileMetadata.isFile === true) {
+          if (fileMetadata.isInRepo === true){
+            if (fileMetadata.sizeDiff !== 0) {
+              console.log(`updating ${gitPath} in the ${mergeBranchName} branch.`);
+              await octokit.repos.updateFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
+                message: `updated ${gitPath} in the ${mergeBranchName} branch.`, 
+                content: fs.readFileSync(fileMetadata.path,"base64"),
+                sha: fileMetadata.sha
+              });
+              remoteMergeBranchChanges = true;
+            }
+          } else {
+            console.log(`creating ${gitPath} in the ${mergeBranchName} branch.`);
+            await octokit.repos.createFile({ owner, repo, path:  gitPath, branch: mergeBranchName,
+              message: `created ${gitPath} in the ${mergeBranchName} branch.`, 
+              content: fs.readFileSync(fileMetadata.path,"base64")
+            });
+            remoteMergeBranchChanges = true;
+          }
+        }
+      };
+  
+      if (remoteMergeBranchChanges === true){
+        console.log(`merging ${mergeBranchName} into ${branch}`);
+        await octokit.pulls.create({owner, repo, title:"auto pull request created by container", head: mergeBranchName, base: branch, maintainer_can_modify: true});
+        console.log(`${mergeBranchName} merged into ${branch}`);
+        for(const pull of (await getPullRequests(mergeBranchName, branch))){
+          await octokit.pulls.merge({ owner, repo, pull_number: pull.number });
+        };
+        remoteMergeBranchChanges = false;
+      } else {
+        console.log(`no changes were found in the ${mergeBranchName} branch.`);
+      }
+  
+      gitRequestsLock = false;
+    };
 };

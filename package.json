@@ -18,8 +18,12 @@
   "homepage": "https://github.com/marchuanv/specification-tests-manager#readme",
   "dependencies": {
     "@octokit/app": "^4.2.1",
+    "@octokit/auth-token": "^2.4.2",
     "@octokit/rest": "^18.0.4",
+    "component.delegate": "git+https://github.com/marchuanv/component.delegate.git",
+    "component.request.handler": "git+https://github.com/marchuanv/component.request.handler.git",
     "js-beautify": "^1.10.2",
+    "trello": "^0.10.0",
     "utils": "git+https://github.com/marchuanv/utils.git"
   },
   "scripts": {
