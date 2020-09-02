@@ -8,6 +8,7 @@ const privatePort = process.env.PORT;
 
 (async () => {
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
+        
         if (request.path === "/"){
             const html = fs.readFileSync("./index.html","utf8")
             return {
@@ -16,7 +17,9 @@ const privatePort = process.env.PORT;
                 headers: {"Content-Type": "text/html"},
                 data: html
             };
-        } else {
+        }
+
+        if (request.path === "/sync"){
             const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
             if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
 
@@ -51,6 +54,13 @@ const privatePort = process.env.PORT;
                 };
             }
         }
+
+        return {
+            statusMessage: "Not Found",
+            statusCode: 404,
+            headers: {"Content-Type": "text/plain"},
+            data: "path does not exist"
+        };
     });
     await componentRequestHandler.handle({
         publicHost: process.env.publicHost,
