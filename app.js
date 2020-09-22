@@ -19,7 +19,7 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
 
     await componentDelegate.register(`component.request.handler.route`, privatePort, async (request) => {
 
-        logging.write("Specification Tests Manager",`handling request for /${request.path}`);
+        logging.write("Specification Tests Manager",`handling request for ${request.path}`);
 
         if (request.path === "/"){
             logging.write("Specification Tests Manager",`Serving Root HTML`);
