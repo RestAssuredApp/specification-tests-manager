@@ -39,11 +39,7 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 const trello = new Trello(trelloApplicationId, trelloToken);
                 let response = {};
                 const boardLists = await Promise.all((await trello.getBoards(trelloMemberId)).map(async (x) => { 
-                    return {
-                        boardId: x.id,
-                        name: x.fullName,
-                        listIds: (await trello.getListsOnBoard(x.id)).map(y => { return { id: y.id, name: y.fullName } } )
-                    }
+                    return (await trello.getListsOnBoard(x.id)).map(y => { return { boardId: x.id, boardName: x.fullName, id: y.id, name: y.fullName } } )
                 }));
 
                 response = utils.getJSONString(boardLists);
