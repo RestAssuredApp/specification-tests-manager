@@ -38,12 +38,13 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 const trello = new Trello(trelloApplicationId, trelloToken);
                 let response = {};
-                const boardLists = Promise.all((await trello.getBoards(trelloMemberId)).map(async x => { 
+                const boardLists = await (await trello.getBoards(trelloMemberId)).map(async (x) => { 
+                    const boardIds = (await trello.getListsOnBoard(x.id)).map(y => y.id);
                     return {
                         boardId: x.id,
-                        listIds: (await trello.getListsOnBoard(x.id)).map(y => y.id)
+                        listIds: boardIds
                     }
-                }));
+                });
 
                 response = utils.getJSONString(boardLists);
 
