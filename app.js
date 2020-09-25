@@ -42,7 +42,7 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                     return {
                         boardId: x.id,
                         name: x.fullName,
-                        listIds: (await trello.getListsOnBoard(x.id)).map(y => { y.id, y.fullName } )
+                        listIds: (await trello.getListsOnBoard(x.id)).map(y => { return { id: y.id, name: y.fullName } } )
                     }
                 }));
 
