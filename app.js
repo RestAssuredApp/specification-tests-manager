@@ -44,7 +44,7 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
                 let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
                 if (gitOwnerTrelloUser) {
                     const trelloMemberId = gitOwnerTrelloUser.id;
-                    const boards = trello.getBoards(trelloMemberId);
+                    const boards = await trello.getBoards(trelloMemberId);
                     response = utils.getJSONString(boards);
                 }
 
