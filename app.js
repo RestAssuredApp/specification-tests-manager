@@ -62,9 +62,10 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 }
 
                 response = utils.getJSONString({
-                    generate: generateListCards,
-                    running: runningListCards,
-                    failing: failingListCards
+                    generateListIds,
+                    generateListCards,
+                    runningListCards,
+                    failingListCards
                 });
 
                 // let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
