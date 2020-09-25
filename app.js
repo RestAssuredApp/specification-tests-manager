@@ -39,6 +39,7 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 const trello = new Trello(trelloApplicationId, trelloToken);
                 let response = {};
                 const boardLists = await (await trello.getBoards(trelloMemberId)).map(async (x) => { 
+                    logging.write("Specification Tests Manager",  utils.getJSONString(x) );
                     const boardIds = (await trello.getListsOnBoard(x.id)).map(y => y.id);
                     return {
                         boardId: x.id,
