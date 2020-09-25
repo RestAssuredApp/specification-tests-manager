@@ -14,6 +14,11 @@ const publicHost = process.env.publicHost || "localhost";
 const publicPort = process.env.publicPort || 3000;
 let { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = process.env;
 
+trelloApplicationId = trelloApplicationId || "f317d2c130873a7012f1220e7b25582a";
+trelloToken = trelloToken || "4b37b5a114e3e1156cb02c501e3dbc4bcf73aeb1a8fd5c41dfe4a5656002bad8";
+gitPrivateKey = gitPrivateKey || "something";
+trelloMemberId = trelloMemberId || "5f4f9f015f4f623da7c67e96";
+
 (async () => {
 
     logging.write("Specification Tests Manager",`starting specification test manager`);
@@ -42,29 +47,29 @@ let { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proces
                     return (await trello.getListsOnBoard(x.id)).map(y => { return { boardId: x.id, boardName: x.name, listId: y.id, listName: y.name } } )
                 })))[0];
 
-                let generateListCards = [];
-                let runningListCards = [];
-                let failingListCards = [];
+                let checkListIdsToGenerate = [];
+                let checkListIdsToRun = [];
+                let checkListIdsThatFailed = [];
 
                 const generateListIds = boardLists.filter(x=>x.listName === "Generate Specification Tests");
                 if (generateListIds && generateListIds.length > 0){
-                    generateListCards =  (await Promise.all( await (await generateListIds.map( async x => await trello.getCardsForList(x.listId) )).map( x => x.idChecklists )))[0];
+                    checkListIdsToGenerate =  ((await Promise.all( await (await generateListIds.map( async x => await trello.getCardsForList(x.listId) ))))[0].map( x => x.idChecklists ))[0];
                 }
 
                 const runningListIds = boardLists.filter(x=>x.listName === "Running Specification Tests");
                 if (runningListIds && runningListIds.length > 0){
-                    runningListCards =  (await Promise.all(await runningListIds.map( async x => await trello.getCardsForList(x.listId) )))[0];
+                    checkListIdsToRun =  ((await Promise.all( await (await runningListIds.map( async x => await trello.getCardsForList(x.listId) ))))[0].map( x => x.idChecklists ))[0];
                 }
 
                 const failingListIds = boardLists.filter(x=>x.listName === "Failing Specification Tests");
                 if (failingListIds && failingListIds.length > 0){
-                    failingListCards =  (await Promise.all(await failingListIds.map( async x => await trello.getCardsForList(x.listId) )))[0];
+                    checkListIdsThatFailed =  ((await Promise.all( await (await failingListIds.map( async x => await trello.getCardsForList(x.listId) ))))[0].map( x => x.idChecklists ))[0];
                 }
 
                 response = utils.getJSONString({
-                    generateListCards,
-                    runningListCards,
-                    failingListCards
+                    checkListIdsToGenerate,
+                    checkListIdsToRun,
+                    checkListIdsThatFailed
                 });
 
                 // let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
