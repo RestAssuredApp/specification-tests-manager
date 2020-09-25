@@ -12,7 +12,7 @@ const utils = require("utils");
 const privatePort = process.env.PORT || 3000;
 const publicHost = process.env.publicHost || "localhost";
 const publicPort = process.env.publicPort || 3000;
-const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = process.env;
+let { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = process.env;
 
 (async () => {
 
@@ -38,9 +38,9 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 const trello = new Trello(trelloApplicationId, trelloToken);
                 let response = {};
-                const boardLists = await Promise.all((await trello.getBoards(trelloMemberId)).map(async (x) => { 
+                const boardLists = (await Promise.all((await trello.getBoards(trelloMemberId)).map(async (x) => { 
                     return (await trello.getListsOnBoard(x.id)).map(y => { return { boardId: x.id, boardName: x.name, listId: y.id, listName: y.name } } )
-                }));
+                })))[0];
 
                 let generateListCards = [];
                 let runningListCards = [];
