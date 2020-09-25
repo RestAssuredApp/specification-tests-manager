@@ -38,7 +38,7 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 const trello = new Trello(trelloApplicationId, trelloToken);
                 let response = {};
-                const boardLists = await trello.getBoards(trelloMemberId).map(async x => { 
+                const boardLists = (await trello.getBoards(trelloMemberId)).map(async x => { 
                     return {
                         boardId: x.id,
                         listIds: (await trello.getListsOnBoard(x.id)).map(y => y.id)
