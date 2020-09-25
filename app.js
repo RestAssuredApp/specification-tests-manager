@@ -37,11 +37,16 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
             if (trelloApplicationId && trelloToken && gitPrivateKey && trelloMemberId){
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 const trello = new Trello(trelloApplicationId, trelloToken);
-
-                const members = await trello.getMember(trelloMemberId);
                 let response = {};
+                const boards = await trello.getBoards(trelloMemberId);
+                const boardLists = boards.map(x=> { 
+                    return {
+                        boardId: x.id,
+                        listIds: trello.getListsOnBoard(x.id).map(y => y.id)
+                    }
+                });
 
-                response = utils.getJSONString(members);
+                response = utils.getJSONString(boardLists);
 
                 // let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
                 // if (gitOwnerTrelloUser) {
