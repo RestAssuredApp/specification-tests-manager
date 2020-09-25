@@ -39,12 +39,19 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
                 const trello = new Trello(trelloApplicationId, trelloToken);
 
                 const boardMemebers = await trello.getBoardMembers(trelloBoardId);
+                let response = {};
+
+                let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
+
+                if (gitOwnerTrelloUser) {
+                    response = utils.getJSONString(gitOwnerTrelloUser)
+                }
 
                 return {
                     statusMessage: "Success",
                     statusCode: 200,
                     headers: {"Content-Type": "application/json"},
-                    data: utils.getJSONString(boardMemebers)
+                    data: response
                 };
 
                 // 
