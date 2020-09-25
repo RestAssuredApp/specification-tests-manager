@@ -8,6 +8,7 @@ logging.config.add("Specification Tests Manager");
 
 const componentRequestHandler = require("component.request.handler");
 const componentDelegate = require("component.delegate");
+const utils = require("utils");
 const privatePort = process.env.PORT || 3000;
 const publicHost = process.env.publicHost || "localhost";
 const publicPort = process.env.publicPort || 3000;
@@ -35,16 +36,18 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
         if (request.path === "/sync"){
             if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
-                //const trello = new Trello(trelloApplicationId, trelloToken);
+                const trello = new Trello(trelloApplicationId, trelloToken);
+
+                const boardMemebers = await trello.getBoardMembers(trelloBoardId);
 
                 return {
                     statusMessage: "Success",
                     statusCode: 200,
-                    headers: {"Content-Type": "text/plain"},
-                    data: "Trello Connected"
+                    headers: {"Content-Type": "application/json"},
+                    data: utils.getJSONString(boardMemebers)
                 };
 
-                // const boardId = 
+                // 
 
                 // trello.getListsOnBoard();
 
