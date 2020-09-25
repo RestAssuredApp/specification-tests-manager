@@ -46,9 +46,9 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 const runningListIds = boardLists.find(x=>x.name === "Running Specification Test");
                 const failingListIds = boardLists.find(x=>x.name === "Failing Specification Test");
 
-                const generateListCards =  generateListIds.map( async x => await trello.getCardsForList(x.listId) );
-                const runningListCards =  runningListIds.map( async x => await trello.getCardsForList(x.listId) );
-                const failingListCards =  failingListCards.map( async x => await trello.getCardsForList(x.listId) );
+                const generateListCards =  await Promise.all(generateListIds.map( async x => await trello.getCardsForList(x.listId) ));
+                const runningListCards =  await Promise.all(runningListIds.map( async x => await trello.getCardsForList(x.listId) ));
+                const failingListCards =  await Promise.all(failingListIds.map( async x => await trello.getCardsForList(x.listId) ));
 
 
 
