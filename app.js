@@ -62,7 +62,6 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                 }
 
                 response = utils.getJSONString({
-                    boardLists,
                     generateListCards,
                     runningListCards,
                     failingListCards
