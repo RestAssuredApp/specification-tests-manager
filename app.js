@@ -42,7 +42,21 @@ const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proc
                     return (await trello.getListsOnBoard(x.id)).map(y => { return { boardId: x.id, boardName: x.name, listId: y.id, listName: y.name } } )
                 }));
 
-                response = utils.getJSONString(boardLists);
+                const generateListIds = boardLists.find(x=>x.name === "Generate Specification Test");
+                const runningListIds = boardLists.find(x=>x.name === "Running Specification Test");
+                const failingListIds = boardLists.find(x=>x.name === "Failing Specification Test");
+
+                const generateListCards =  generateListIds.map( async x => await trello.getCardsForList(x.listId) );
+                const runningListCards =  runningListIds.map( async x => await trello.getCardsForList(x.listId) );
+                const failingListCards =  failingListCards.map( async x => await trello.getCardsForList(x.listId) );
+
+
+
+                response = utils.getJSONString({
+                    generate: generateListCards,
+                    running: runningListCards,
+                    failing: failingListCards
+                });
 
                 // let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
                 // if (gitOwnerTrelloUser) {
