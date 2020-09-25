@@ -48,17 +48,17 @@ let { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = proces
 
                 const generateListIds = boardLists.filter(x=>x.listName === "Generate Specification Tests");
                 if (generateListIds && generateListIds.length > 0){
-                    generateListCards =  await Promise.all(await generateListIds.map( async x => await trello.getCardsForList(x.listId) ));
+                    generateListCards =  (await Promise.all( await (await generateListIds.map( async x => await trello.getCardsForList(x.listId) )).map( x => x.idChecklists )))[0];
                 }
 
                 const runningListIds = boardLists.filter(x=>x.listName === "Running Specification Tests");
                 if (runningListIds && runningListIds.length > 0){
-                    runningListCards =  await Promise.all(await runningListIds.map( async x => await trello.getCardsForList(x.listId) ));
+                    runningListCards =  (await Promise.all(await runningListIds.map( async x => await trello.getCardsForList(x.listId) )))[0];
                 }
 
                 const failingListIds = boardLists.filter(x=>x.listName === "Failing Specification Tests");
                 if (failingListIds && failingListIds.length > 0){
-                    failingListCards =  await Promise.all(await failingListIds.map( async x => await trello.getCardsForList(x.listId) ));
+                    failingListCards =  (await Promise.all(await failingListIds.map( async x => await trello.getCardsForList(x.listId) )))[0];
                 }
 
                 response = utils.getJSONString({
