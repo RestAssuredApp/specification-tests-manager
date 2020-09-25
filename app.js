@@ -12,7 +12,7 @@ const utils = require("utils");
 const privatePort = process.env.PORT || 3000;
 const publicHost = process.env.publicHost || "localhost";
 const publicPort = process.env.publicPort || 3000;
-const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId } = process.env;
+const { trelloApplicationId, trelloToken, gitPrivateKey, trelloMemberId } = process.env;
 
 (async () => {
 
@@ -34,19 +34,24 @@ const { gitOwner, trelloApplicationId, trelloToken, gitPrivateKey, trelloBoardId
         }
 
         if (request.path === "/sync"){
-            if (gitOwner && trelloApplicationId && trelloToken && gitPrivateKey && trelloBoardId){
+            if (trelloApplicationId && trelloToken && gitPrivateKey && trelloMemberId){
                 logging.write("Specification Tests Manager",`hosted environment is setup correctly`);
                 const trello = new Trello(trelloApplicationId, trelloToken);
 
-                const boardMemebers = await trello.getBoardMembers(trelloBoardId);
+                const members = await trello.getMember(trelloMemberId);
                 let response = {};
 
-                let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
-                if (gitOwnerTrelloUser) {
-                    const trelloMemberId = gitOwnerTrelloUser.id;
-                    const boards = await trello.getBoards(trelloMemberId);
-                    response = utils.getJSONString(boards);
-                }
+                response = utils.getJSONString(members);
+
+                // let gitOwnerTrelloUser = boardMemebers.find(x=>x.fullName.toLowerCase() === gitOwner.toLowerCase());
+                // if (gitOwnerTrelloUser) {
+                //     const trelloMemberId = gitOwnerTrelloUser.id;
+                //     const boards = await trello.getBoards(trelloMemberId);
+
+                //     boards
+
+                //     response = utils.getJSONString(boards);
+                // }
 
                 return {
                     statusMessage: "Success",
