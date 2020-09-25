@@ -23,9 +23,9 @@
     "component.delegate": "git+https://github.com/marchuanv/component.delegate.git",
     "component.request.handler": "git+https://github.com/marchuanv/component.request.handler.git",
     "js-beautify": "^1.10.2",
+    "logging": "git+https://github.com/marchuanv/logging.git",
     "trello": "^0.10.0",
-    "utils": "git+https://github.com/marchuanv/utils.git",
-    "logging": "git+https://github.com/marchuanv/logging.git"
+    "utils": "git+https://github.com/marchuanv/utils.git"
   },
   "scripts": {
     "start": "node app.js"
